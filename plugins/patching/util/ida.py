@@ -10,7 +10,7 @@ import ida_name
 import ida_bytes
 import ida_lines
 import ida_idaapi
-import ida_struct
+# import ida_struct # TODO: IDA 9.0 removed ida_struct
 import ida_kernwin
 import ida_segment
 
@@ -327,49 +327,50 @@ def resolve_symbol(from_ea, name):
     # *could* be a global struct path. let's try to walk though it
     #
 
-    if sep:
+    # TODO: IDA 9.0 removed ida_struct
+    # if sep:
 
-        resolved_paths = 0
+    #     resolved_paths = 0
 
-        for global_ea, real_name in resolve_symbol(from_ea, global_name):
+    #     for global_ea, real_name in resolve_symbol(from_ea, global_name):
 
-            # if the resolved symbol address is not a global struct, ignore it
-            if not ida_bytes.is_struct(ida_bytes.get_flags(global_ea)):
-                continue
+    #         # if the resolved symbol address is not a global struct, ignore it
+    #         if not ida_bytes.is_struct(ida_bytes.get_flags(global_ea)):
+    #             continue
 
-            # get the struct info for the resolved global address
-            sid = ida_nalt.get_strid(global_ea)
-            sptr = ida_struct.get_struc(sid)
+    #         # get the struct info for the resolved global address
+    #         sid = ida_nalt.get_strid(global_ea)
+    #         sptr = ida_struct.get_struc(sid)
 
-            #
-            # walk through the rest of the struct path to compute the offset (and
-            # final address) of the referenced field eg. global.foo.bar
-            #
+    #         #
+    #         # walk through the rest of the struct path to compute the offset (and
+    #         # final address) of the referenced field eg. global.foo.bar
+    #         #
 
-            offset = 0
-            while struct_path and sptr != None:
+    #         offset = 0
+    #         while struct_path and sptr != None:
 
-                member_name, sep, struct_path = struct_path.partition('.')
-                member = ida_struct.get_member_by_name(sptr, member_name)
+    #             member_name, sep, struct_path = struct_path.partition('.')
+    #             member = ida_struct.get_member_by_name(sptr, member_name)
 
-                if member is None:
-                    print(" - INVALID STRUCT MEMBER!", member_name)
-                    break
+    #             if member is None:
+    #                 print(" - INVALID STRUCT MEMBER!", member_name)
+    #                 break
 
-                offset += member.get_soff()
-                sptr = ida_struct.get_sptr(member)
-                if not sptr:
-                    assert not('.' in struct_path), 'Expected end of struct path?'
-                    yield (global_ea+offset, name)
-                    resolved_paths += 1
+    #             offset += member.get_soff()
+    #             sptr = ida_struct.get_sptr(member)
+    #             if not sptr:
+    #                 assert not('.' in struct_path), 'Expected end of struct path?'
+    #                 yield (global_ea+offset, name)
+    #                 resolved_paths += 1
 
-        #
-        # TODO/XXX: if we yielded at least one struct path... we're *probably*
-        # good. I don't think
-        #
+    #     #
+    #     # TODO/XXX: if we yielded at least one struct path... we're *probably*
+    #     # good. I don't think
+    #     #
 
-        if resolved_paths:
-            return
+    #     if resolved_paths:
+    #         return
 
     #
     # if the given symbol does not appear to be a global struct path, we
